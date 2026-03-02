@@ -3,7 +3,7 @@
 import { useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, Zap, HeartCrack, Sparkles, ArrowRight, Twitter, ExternalLink } from 'lucide-react';
+import { Play, Pause, Zap, HeartCrack, Sparkles, ArrowRight } from 'lucide-react';
 import { PLATFORMS } from '@/lib/platforms';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useVlivers } from '@/hooks/useVlivers';
@@ -190,7 +190,9 @@ function FavoriteCard({
                 style={{ background: '#000000', color: '#FFFFFF' }}
                 aria-label="Xを見る"
               >
-                <Twitter className="w-3 h-3" />X
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.258 5.63 5.906-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
               </a>
             )}
             <button
