@@ -10,8 +10,8 @@ import UserMenu from '@/components/UserMenu';
 const BRAND = '#EF5285';
 
 export default function AppHeader({ showBack = false }: { showBack?: boolean }) {
-  const { likedIds }       = useFavorites();
-  const { profile }        = useMyProfile();
+  const { likedIds }                  = useFavorites();
+  const { profile, loading: profileLoading } = useMyProfile();
   const likedCount         = likedIds.size;
 
   return (
@@ -48,7 +48,7 @@ export default function AppHeader({ showBack = false }: { showBack?: boolean }) 
               <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full" style={{ background: BRAND }} />
             )}
           </Link>
-          {!profile && (
+          {!profileLoading && !profile && (
             <Link
               href="/register"
               className="w-8 h-8 flex items-center justify-center rounded-full transition-all hover:scale-105"
