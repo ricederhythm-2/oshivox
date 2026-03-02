@@ -472,7 +472,16 @@ export default function RegisterForm() {
                 <div className={`w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${rights[item.id] ? 'bg-emerald-500' : 'bg-[#E8E8E8]'}`}>
                   {rights[item.id] && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
                 </div>
-                <span className={`text-xs leading-relaxed ${rights[item.id] ? 'text-[#111111]' : 'text-[#555555]'}`}>{item.text}</span>
+                <span className={`text-xs leading-relaxed ${rights[item.id] ? 'text-[#111111]' : 'text-[#555555]'}`}>
+                  {item.id === 'terms' ? (
+                    <>
+                      <a href="/terms" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="underline underline-offset-2">利用規約</a>
+                      および
+                      <a href="/guidelines" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="underline underline-offset-2">コンテンツガイドライン</a>
+                      に同意します
+                    </>
+                  ) : item.text}
+                </span>
               </button>
             ))}
           </div>

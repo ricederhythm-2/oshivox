@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { useSearchParams } from 'next/navigation';
 import { Sparkles } from 'lucide-react';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Suspense } from 'react';
 
@@ -69,7 +70,11 @@ function LoginForm() {
         </div>
 
         <p className="text-xs text-center" style={{ color: '#AAAAAA' }}>
-          ログインすることで利用規約と<br />プライバシーポリシーに同意したとみなします
+          ログインすることで
+          <Link href="/terms" className="underline underline-offset-2">利用規約</Link>
+          ・
+          <Link href="/guidelines" className="underline underline-offset-2">コンテンツガイドライン</Link>
+          <br />に同意したとみなします
         </p>
       </div>
     </div>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { LogIn, LogOut, Mic, Pencil, UserPlus } from 'lucide-react';
+import { LogIn, LogOut, Mic, Pencil, UserPlus, ScrollText } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useMyProfile } from '@/hooks/useMyProfile';
 import type { User } from '@supabase/supabase-js';
@@ -112,6 +112,26 @@ export default function UserMenu() {
               {profile ? <Pencil className="w-3.5 h-3.5" /> : <UserPlus className="w-3.5 h-3.5" />}
               {profile ? 'プロフィール編集' : 'Vライバー登録'}
             </Link>
+            <div style={{ borderTop: '1px solid #F0F0F0' }}>
+              <Link
+                href="/terms"
+                onClick={() => setMenuOpen(false)}
+                className="w-full flex items-center gap-2.5 px-4 py-2 text-xs transition-all hover:bg-gray-50"
+                style={{ color: '#AAAAAA' }}
+              >
+                <ScrollText className="w-3.5 h-3.5" />
+                利用規約
+              </Link>
+              <Link
+                href="/guidelines"
+                onClick={() => setMenuOpen(false)}
+                className="w-full flex items-center gap-2.5 px-4 py-2 text-xs transition-all hover:bg-gray-50"
+                style={{ color: '#AAAAAA' }}
+              >
+                <ScrollText className="w-3.5 h-3.5" />
+                コンテンツガイドライン
+              </Link>
+            </div>
             <button
               onClick={handleSignOut}
               className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs transition-all hover:bg-gray-50"
