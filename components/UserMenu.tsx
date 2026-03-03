@@ -80,7 +80,7 @@ export default function UserMenu() {
         <>
           <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
           <div
-            className="absolute right-0 top-10 z-20 w-44 rounded-2xl py-1 overflow-hidden"
+            className="absolute right-0 top-10 z-20 w-max rounded-2xl py-1 overflow-hidden"
             style={{
               background: '#FFFFFF',
               border: '1px solid #E8E8E8',
@@ -97,7 +97,7 @@ export default function UserMenu() {
                 <Link
                   href="/my-posts"
                   onClick={() => setMenuOpen(false)}
-                  className="w-full flex items-center gap-2.5 px-4 pt-1.5 pb-0 text-xs transition-all hover:bg-gray-50"
+                  className="w-full flex items-center gap-2.5 px-4 pt-1.5 pb-0 text-xs whitespace-nowrap transition-all hover:bg-gray-50"
                   style={{ color: '#555555' }}
                 >
                   <Mic className="w-3.5 h-3.5" />
@@ -107,7 +107,7 @@ export default function UserMenu() {
               <Link
                 href="/register"
                 onClick={() => setMenuOpen(false)}
-                className="w-full flex items-center gap-2.5 px-4 pt-1.5 pb-0 text-xs transition-all hover:bg-gray-50"
+                className="w-full flex items-center gap-2.5 px-4 pt-1.5 pb-0 text-xs whitespace-nowrap transition-all hover:bg-gray-50"
                 style={{ color: '#555555' }}
               >
                 {profile ? <Pencil className="w-3.5 h-3.5" /> : <UserPlus className="w-3.5 h-3.5" />}
@@ -118,7 +118,7 @@ export default function UserMenu() {
               <Link
                 href="/terms"
                 onClick={() => setMenuOpen(false)}
-                className="w-full flex items-center gap-2.5 px-4 pt-1.5 pb-0 text-xs transition-all hover:bg-gray-50"
+                className="w-full flex items-center gap-2.5 px-4 pt-1.5 pb-0 text-xs whitespace-nowrap transition-all hover:bg-gray-50"
                 style={{ color: '#AAAAAA' }}
               >
                 <ScrollText className="w-3.5 h-3.5" />
@@ -127,7 +127,7 @@ export default function UserMenu() {
               <Link
                 href="/guidelines"
                 onClick={() => setMenuOpen(false)}
-                className="w-full flex items-center gap-2.5 px-4 pt-1.5 pb-0 text-xs transition-all hover:bg-gray-50"
+                className="w-full flex items-center gap-2.5 px-4 pt-1.5 pb-0 text-xs whitespace-nowrap transition-all hover:bg-gray-50"
                 style={{ color: '#AAAAAA' }}
               >
                 <ScrollText className="w-3.5 h-3.5" />
@@ -136,7 +136,7 @@ export default function UserMenu() {
               <Link
                 href="/privacy"
                 onClick={() => setMenuOpen(false)}
-                className="w-full flex items-center gap-2.5 px-4 pt-1.5 pb-0 text-xs transition-all hover:bg-gray-50"
+                className="w-full flex items-center gap-2.5 px-4 pt-1.5 pb-0 text-xs whitespace-nowrap transition-all hover:bg-gray-50"
                 style={{ color: '#AAAAAA' }}
               >
                 <ScrollText className="w-3.5 h-3.5" />
@@ -145,7 +145,7 @@ export default function UserMenu() {
             </div>
             <button
               onClick={handleSignOut}
-              className="w-full flex items-center gap-2.5 px-4 py-1.5 text-xs transition-all hover:bg-gray-50"
+              className="w-full flex items-center gap-2.5 px-4 py-1.5 text-xs whitespace-nowrap transition-all hover:bg-gray-50"
               style={{ color: '#555555', borderTop: '1px solid #F0F0F0' }}
             >
               <LogOut className="w-3.5 h-3.5" />
