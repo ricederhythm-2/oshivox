@@ -4,6 +4,7 @@ import "./globals.css";
 import PageTransition from "@/components/PageTransition";
 import PreventPullToRefresh from "@/components/PreventPullToRefresh";
 import { FavoritesProvider } from "@/context/FavoritesContext";
+import { ProfileProvider } from "@/context/ProfileContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,10 +38,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <ProfileProvider>
         <FavoritesProvider>
           <PreventPullToRefresh />
           <PageTransition>{children}</PageTransition>
         </FavoritesProvider>
+        </ProfileProvider>
       </body>
     </html>
   );
