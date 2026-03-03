@@ -131,6 +131,15 @@ export default function UserMenu() {
                 <ScrollText className="w-3.5 h-3.5" />
                 コンテンツガイドライン
               </Link>
+              <Link
+                href="/privacy"
+                onClick={() => setMenuOpen(false)}
+                className="w-full flex items-center gap-2.5 px-4 py-2 text-xs transition-all hover:bg-gray-50"
+                style={{ color: '#AAAAAA' }}
+              >
+                <ScrollText className="w-3.5 h-3.5" />
+                プライバシーポリシー
+              </Link>
             </div>
             <button
               onClick={handleSignOut}
