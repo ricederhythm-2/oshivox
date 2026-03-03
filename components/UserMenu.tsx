@@ -54,6 +54,8 @@ export default function UserMenu() {
     ?? (user.user_metadata?.name as string | undefined)
     ?? user.email?.split('@')[0]
     ?? 'ユーザー';
+  const xHandle = (user.user_metadata?.user_name as string | undefined)
+    ?? (user.user_metadata?.preferred_username as string | undefined);
   const initial = displayName[0].toUpperCase();
 
   return (
@@ -89,7 +91,7 @@ export default function UserMenu() {
           >
             <div className="px-5 py-2.5" style={{ borderBottom: '1px solid #F0F0F0' }}>
               <p className="text-xs font-bold truncate" style={{ color: '#111111' }}>{displayName}</p>
-              <p className="text-xs truncate mt-0.5" style={{ color: '#AAAAAA' }}>{user.email}</p>
+              {xHandle && <p className="text-xs truncate mt-0.5" style={{ color: '#AAAAAA' }}>@{xHandle}</p>}
             </div>
 
             <div className="pb-2">
