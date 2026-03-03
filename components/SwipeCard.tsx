@@ -23,6 +23,7 @@ const BOOST  = '#FEEE7D';
 
 export interface VLiver {
   id: string;
+  profileId: string;
   name: string;
   handle: string;
   catchphrase: string;

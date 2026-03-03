@@ -55,6 +55,7 @@ export function useVlivers() {
               };
               return {
                 id:          row.id,
+                profileId:   p.id,
                 name:        p.name,
                 handle:      p.handle ? `@${p.handle}` : '',
                 catchphrase: row.catch_copy,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, Zap, HeartCrack, Sparkles, ArrowRight } from 'lucide-react';
@@ -14,65 +14,68 @@ const BOOST = '#FEEE7D';
 
 export default function FavoritesList() {
   const { orderedIds, removeFavorite, hydrated } = useFavorites();
-  const { vliversMap, loading: vliversLoading }  = useVlivers();
+  const { vliversMap, loading: vliversLoading } = useVlivers();
 
-  const favorites = orderedIds
-    .map((id) => vliversMap.get(id))
-    .filter((v): v is VLiver => !!v);
+  const groups = useMemo(() => {
+    const seen = new Map<string, VLiver[]>();
+    for (const id of orderedIds) {
+      const v = vliversMap.get(id);
+      if (!v) continue;
+      if (!seen.has(v.profileId)) seen.set(v.profileId, []);
+      seen.get(v.profileId)!.push(v);
+    }
+    return Array.from(seen.entries()).map(([profileId, voices]) => ({ profileId, voices }));
+  }, [orderedIds, vliversMap]);
 
   const currentAudioRef           = useRef<HTMLAudioElement | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
 
-  const handleTogglePlay = useCallback(
-    (vliver: VLiver) => {
-      if (playingId === vliver.id) {
-        currentAudioRef.current?.pause();
-        setPlayingId(null);
-        return;
-      }
-      if (currentAudioRef.current) {
-        currentAudioRef.current.pause();
-        currentAudioRef.current.currentTime = 0;
-      }
-      const audio = new Audio(vliver.voiceUrl);
-      audio.preload = 'none';
-      audio.addEventListener('ended', () => setPlayingId(null));
-      audio.play().catch(() => {});
-      currentAudioRef.current = audio;
-      setPlayingId(vliver.id);
-    },
-    [playingId],
-  );
+  const handleTogglePlay = useCallback((vliver: VLiver) => {
+    if (playingId === vliver.id) {
+      currentAudioRef.current?.pause();
+      setPlayingId(null);
+      return;
+    }
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current.currentTime = 0;
+    }
+    const audio = new Audio(vliver.voiceUrl);
+    audio.preload = 'none';
+    audio.addEventListener('ended', () => setPlayingId(null));
+    audio.play().catch(() => {});
+    currentAudioRef.current = audio;
+    setPlayingId(vliver.id);
+  }, [playingId]);
 
-  const handleRemove = useCallback(
-    (id: string) => {
-      if (playingId === id) {
-        currentAudioRef.current?.pause();
-        currentAudioRef.current = null;
-        setPlayingId(null);
-      }
-      removeFavorite(id);
-    },
-    [playingId, removeFavorite],
-  );
+  const handleRemove = useCallback((id: string) => {
+    if (playingId === id) {
+      currentAudioRef.current?.pause();
+      currentAudioRef.current = null;
+      setPlayingId(null);
+    }
+    removeFavorite(id);
+  }, [playingId, removeFavorite]);
 
   if (!hydrated || vliversLoading) return <FavoritesListSkeleton />;
-  if (favorites.length === 0) return <EmptyState />;
+  if (groups.length === 0) return <EmptyState />;
+
+  const totalVoices = orderedIds.filter((id) => vliversMap.has(id)).length;
 
   return (
     <div className="w-full max-w-[430px] mx-auto px-4 pt-4 pb-12">
       <p className="text-right text-xs mb-2" style={{ color: '#AAAAAA' }}>
-        {favorites.length}人をお気に入り中
+        {groups.length}人 · {totalVoices}ボイスをお気に入り中
       </p>
 
       <AnimatePresence initial={false}>
-        {favorites.map((vliver) => (
-          <FavoriteCard
-            key={vliver.id}
-            vliver={vliver}
-            isPlaying={playingId === vliver.id}
-            onTogglePlay={() => handleTogglePlay(vliver)}
-            onRemove={() => handleRemove(vliver.id)}
+        {groups.map(({ profileId, voices }) => (
+          <VliverGroupCard
+            key={profileId}
+            voices={voices}
+            playingId={playingId}
+            onTogglePlay={handleTogglePlay}
+            onRemove={handleRemove}
           />
         ))}
       </AnimatePresence>
@@ -80,14 +83,16 @@ export default function FavoritesList() {
   );
 }
 
-function FavoriteCard({
-  vliver, isPlaying, onTogglePlay, onRemove,
+function VliverGroupCard({
+  voices, playingId, onTogglePlay, onRemove,
 }: {
-  vliver: VLiver;
-  isPlaying: boolean;
-  onTogglePlay: () => void;
-  onRemove: () => void;
+  voices: VLiver[];
+  playingId: string | null;
+  onTogglePlay: (v: VLiver) => void;
+  onRemove: (id: string) => void;
 }) {
+  const profile = voices[0];
+
   return (
     <motion.div
       layout
@@ -111,63 +116,128 @@ function FavoriteCard({
         {/* キャラクター画像 */}
         <div className="w-24 flex-shrink-0 relative" style={{ background: '#FFF5F8' }}>
           <img
-            src={vliver.imageUrl || undefined}
-            alt={vliver.name}
+            src={profile.imageUrl || undefined}
+            alt={profile.name}
             className="absolute inset-0 w-full h-full object-cover object-top"
             draggable={false}
           />
         </div>
 
-        {/* 情報エリア */}
-        <div className="flex-1 px-3 py-3 flex flex-col justify-between min-w-0">
-          <div>
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <h3 className="font-black text-[15px] leading-tight truncate flex-1" style={{ color: '#111111' }}>
-                {vliver.name}
-              </h3>
-              {vliver.is_boosted && (
-                <span
-                  className="flex items-center gap-0.5 text-[9px] font-black px-1.5 py-0.5 rounded-full flex-shrink-0"
-                  style={{ background: BOOST, color: '#7A5F00' }}
+        {/* 右エリア */}
+        <div className="flex-1 px-3 py-3 flex flex-col min-w-0">
+          {/* プロフィール情報 */}
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <h3 className="font-black text-[15px] leading-tight truncate flex-1" style={{ color: '#111111' }}>
+              {profile.name}
+            </h3>
+            {voices.some((v) => v.is_boosted) && (
+              <span
+                className="flex items-center gap-0.5 text-[9px] font-black px-1.5 py-0.5 rounded-full flex-shrink-0"
+                style={{ background: BOOST, color: '#7A5F00' }}
+              >
+                <Zap className="w-2 h-2" style={{ fill: '#7A5F00', color: '#7A5F00' }} />
+                BOOST
+              </span>
+            )}
+          </div>
+          <p className="text-[11px] font-mono truncate mb-2" style={{ color: '#AAAAAA' }}>
+            {profile.handle}
+          </p>
+          <div className="flex flex-wrap gap-1 mb-3">
+            {profile.tags.map((tag) => (
+              <span
+                key={tag}
+                className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
+                style={{ background: `${BRAND}12`, color: BRAND, border: `1px solid ${BRAND}25` }}
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+
+          {/* ボイスリスト */}
+          <div className="space-y-1.5">
+            <AnimatePresence initial={false}>
+              {voices.map((v) => (
+                <motion.div
+                  key={v.id}
+                  layout
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                  transition={{ duration: 0.2 }}
+                  className="flex items-center gap-2 px-2 py-1.5 rounded-xl"
+                  style={{ background: '#F9F9F9' }}
                 >
-                  <Zap className="w-2 h-2" style={{ fill: '#7A5F00', color: '#7A5F00' }} />
-                  BOOST
-                </span>
-              )}
-            </div>
-
-            <p className="text-[11px] font-mono truncate" style={{ color: '#AAAAAA' }}>
-              {vliver.handle}
-            </p>
-
-            <p className="text-xs mt-1.5 leading-snug line-clamp-2" style={{ color: '#555555' }}>
-              「{vliver.catchphrase}」
-            </p>
-
-            <div className="flex flex-wrap gap-1 mt-1.5">
-              {vliver.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
-                  style={{
-                    background: `${BRAND}12`,
-                    color: BRAND,
-                    border: `1px solid ${BRAND}25`,
-                  }}
-                >
-                  #{tag}
-                </span>
+                  <p className="flex-1 text-xs truncate" style={{ color: '#555555' }}>
+                    「{v.catchphrase}」
+                  </p>
+                  <button
+                    onClick={() => onTogglePlay(v)}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold flex-shrink-0 transition-all hover:scale-105 active:scale-95"
+                    style={
+                      playingId === v.id
+                        ? { background: BRAND, color: '#fff', boxShadow: `0 2px 8px ${BRAND}40` }
+                        : { background: `${BRAND}12`, color: BRAND, border: `1px solid ${BRAND}25` }
+                    }
+                  >
+                    {playingId === v.id ? (
+                      <>
+                        <Pause className="w-2.5 h-2.5 fill-current" />
+                        停止
+                        <span className="flex items-end gap-[2px] h-3">
+                          {[0, 0.15, 0.3].map((delay) => (
+                            <motion.span
+                              key={delay}
+                              className="w-[2px] rounded-full bg-white"
+                              animate={{ height: ['4px', '10px', '4px'] }}
+                              transition={{ duration: 0.6, repeat: Infinity, delay, ease: 'easeInOut' }}
+                            />
+                          ))}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-2.5 h-2.5 fill-current" />
+                        試聴
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => onRemove(v.id)}
+                    className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold flex-shrink-0 transition-all active:scale-95 hover:scale-105"
+                    style={{ color: '#AAAAAA', border: '1px solid #E8E8E8', background: '#FFFFFF' }}
+                    aria-label="お気に入りから外す"
+                  >
+                    <HeartCrack className="w-2.5 h-2.5" />
+                    外す
+                  </button>
+                </motion.div>
               ))}
-            </div>
+            </AnimatePresence>
           </div>
 
           {/* プラットフォームリンク */}
-          {Object.keys(vliver.platformLinks ?? {}).length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-2">
-              {PLATFORMS.filter((p) => vliver.platformLinks?.[p.id]).map((p) => (
+          {(profile.twitterHandle || Object.keys(profile.platformLinks ?? {}).length > 0) && (
+            <div className="flex flex-wrap gap-1 mt-2.5">
+              {profile.twitterHandle && (
+                <a
+                  href={`https://x.com/${profile.twitterHandle}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[10px] font-bold transition-all hover:scale-105 active:scale-95"
+                  style={{ background: '#000000', color: '#FFFFFF' }}
+                  aria-label="Xを見る"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.258 5.63 5.906-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  </svg>
+                </a>
+              )}
+              {PLATFORMS.filter((p) => profile.platformLinks?.[p.id]).map((p) => (
                 <a
                   key={p.id}
-                  href={vliver.platformLinks[p.id]}
+                  href={profile.platformLinks[p.id]}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold transition-all hover:scale-105 active:scale-95"
@@ -178,65 +248,6 @@ function FavoriteCard({
               ))}
             </div>
           )}
-
-          {/* ボタン行 */}
-          <div className="flex items-center gap-2 mt-2.5">
-            {vliver.twitterHandle && (
-              <a
-                href={`https://x.com/${vliver.twitterHandle}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[10px] font-bold transition-all hover:scale-105 active:scale-95"
-                style={{ background: '#000000', color: '#FFFFFF' }}
-                aria-label="Xを見る"
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.258 5.63 5.906-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                </svg>
-              </a>
-            )}
-            <button
-              onClick={onTogglePlay}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all hover:scale-105 active:scale-95"
-              style={
-                isPlaying
-                  ? { background: BRAND, color: '#fff', boxShadow: `0 2px 8px ${BRAND}40` }
-                  : { background: `${BRAND}12`, color: BRAND, border: `1px solid ${BRAND}25` }
-              }
-            >
-              {isPlaying ? (
-                <>
-                  <Pause className="w-3 h-3 fill-current" />
-                  停止
-                  <span className="flex items-end gap-[2px] h-3">
-                    {[0, 0.15, 0.3].map((delay) => (
-                      <motion.span
-                        key={delay}
-                        className="w-[2px] rounded-full bg-white"
-                        animate={{ height: ['4px', '10px', '4px'] }}
-                        transition={{ duration: 0.6, repeat: Infinity, delay, ease: 'easeInOut' }}
-                      />
-                    ))}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <Play className="w-3 h-3 fill-current" />
-                  試聴
-                </>
-              )}
-            </button>
-
-            <button
-              onClick={onRemove}
-              className="ml-auto flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95 hover:scale-105"
-              style={{ color: '#AAAAAA', border: '1px solid #E8E8E8', background: '#FFFFFF' }}
-              aria-label="お気に入りから外す"
-            >
-              <HeartCrack className="w-3 h-3" />
-              外す
-            </button>
-          </div>
         </div>
       </div>
     </motion.div>
@@ -246,31 +257,24 @@ function FavoriteCard({
 function FavoritesListSkeleton() {
   return (
     <div className="w-full max-w-[430px] mx-auto px-4 pt-4 pb-12">
-      <div className="h-4 w-24 rounded-full mb-2 ml-auto animate-pulse" style={{ background: '#F0F0F0' }} />
-      {[...Array(4)].map((_, i) => (
+      <div className="h-4 w-32 rounded-full mb-2 ml-auto animate-pulse" style={{ background: '#F0F0F0' }} />
+      {[...Array(3)].map((_, i) => (
         <div
           key={i}
           className="mb-3 flex rounded-2xl overflow-hidden animate-pulse"
           style={{ background: '#FFFFFF', border: '1px solid #E8E8E8', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
         >
-          {/* 左アクセントライン */}
           <div style={{ width: 3, flexShrink: 0, background: '#F0F0F0' }} />
-          {/* 画像エリア */}
-          <div className="w-24 flex-shrink-0" style={{ background: '#F5F5F5', minHeight: 140 }} />
-          {/* 情報エリア */}
+          <div className="w-24 flex-shrink-0" style={{ background: '#F5F5F5', minHeight: 160 }} />
           <div className="flex-1 px-3 py-3 flex flex-col gap-2">
             <div className="h-4 w-28 rounded-full" style={{ background: '#F0F0F0' }} />
             <div className="h-3 w-20 rounded-full" style={{ background: '#F5F5F5' }} />
-            <div className="h-3 w-full rounded-full" style={{ background: '#F5F5F5' }} />
-            <div className="h-3 w-3/4 rounded-full" style={{ background: '#F5F5F5' }} />
-            <div className="flex gap-1 mt-1">
+            <div className="flex gap-1">
               <div className="h-4 w-12 rounded-full" style={{ background: '#F0F0F0' }} />
               <div className="h-4 w-12 rounded-full" style={{ background: '#F0F0F0' }} />
             </div>
-            <div className="flex gap-2 mt-auto pt-1">
-              <div className="h-6 w-16 rounded-full" style={{ background: '#F0F0F0' }} />
-              <div className="h-6 w-12 rounded-full" style={{ background: '#F0F0F0' }} />
-            </div>
+            <div className="h-8 w-full rounded-xl" style={{ background: '#F5F5F5' }} />
+            <div className="h-8 w-full rounded-xl" style={{ background: '#F5F5F5' }} />
           </div>
         </div>
       ))}

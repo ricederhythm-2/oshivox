@@ -9,6 +9,7 @@ import type { VLiver } from '@/components/SwipeCard';
 export const VLIVERS: VLiver[] = [
   {
     id: 'akari',
+    profileId: 'akari',
     name: '星咲 あかり',
     handle: '@akari_hoshizaki',
     catchphrase: '今日も一緒に輝こうね⭐',
@@ -24,6 +25,7 @@ export const VLIVERS: VLiver[] = [
   },
   {
     id: 'rei',
+    profileId: 'rei',
     name: '蒼天 レイ',
     handle: '@rei_souten',
     catchphrase: '深淵を覗く者よ、ようこそ。',
@@ -39,6 +41,7 @@ export const VLIVERS: VLiver[] = [
   },
   {
     id: 'midori',
+    profileId: 'midori',
     name: '翠葉 みどり',
     handle: '@midori_suiha',
     catchphrase: 'ゆっくりまったり、一緒にいよう🌿',
