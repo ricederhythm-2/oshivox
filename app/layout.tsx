@@ -27,6 +27,9 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "OshiVox — 運命の声に出会う場所",
   description: "3秒聴いて、スワイプ。Vライバー・VTuberのファンマッチングアプリ。",
+  other: {
+    'google-adsense-account': 'ca-pub-2902941311970353',
+  },
 };
 
 export default function RootLayout({
@@ -36,17 +39,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <head>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2902941311970353"
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
         <ProfileProvider>
         <FavoritesProvider>
           <PreventPullToRefresh />
