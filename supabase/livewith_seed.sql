@@ -9,17 +9,17 @@ BEGIN
   INSERT INTO public.agencies (slug, name, description, twitter_handle)
   VALUES (
     'livewith',
-    'LiveWith',
+    'LIVEwith',
     'Vライバー・VTuberを中心に多彩な才能が集まるライバー事務所。歌・ゲーム・癒し系まで個性豊かな声で、あなたの毎日に彩りを。',
     'LIVEwith_X'
   )
   ON CONFLICT (slug) DO UPDATE SET
-    name        = EXCLUDED.name,
-    description = EXCLUDED.description,
+    name           = EXCLUDED.name,
+    description    = EXCLUDED.description,
     twitter_handle = EXCLUDED.twitter_handle
   RETURNING id INTO a_id;
 
-  -- 既存サンプルライバーを LiveWith に紐付け
+  -- 既存サンプルライバーを LIVEwith に紐付け
   UPDATE public.vliver_profiles
   SET agency_id = a_id
   WHERE handle IN ('akane_v', 'yuina_star', 'kotona_v', 'ramu_sea');
