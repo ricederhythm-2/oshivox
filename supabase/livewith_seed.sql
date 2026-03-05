@@ -11,11 +11,12 @@ BEGIN
     'livewith',
     'LiveWith',
     'Vライバー・VTuberを中心に多彩な才能が集まるライバー事務所。歌・ゲーム・癒し系まで個性豊かな声で、あなたの毎日に彩りを。',
-    'livewith_official'
+    'LIVEwith_X'
   )
   ON CONFLICT (slug) DO UPDATE SET
     name        = EXCLUDED.name,
-    description = EXCLUDED.description
+    description = EXCLUDED.description,
+    twitter_handle = EXCLUDED.twitter_handle
   RETURNING id INTO a_id;
 
   -- 既存サンプルライバーを LiveWith に紐付け
