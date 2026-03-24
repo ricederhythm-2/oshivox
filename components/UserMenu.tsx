@@ -34,7 +34,7 @@ export default function UserMenu() {
     router.refresh();
   };
 
-  if (loading || profileLoading) return null;
+  if (loading) return null;
 
   if (!user) {
     return (

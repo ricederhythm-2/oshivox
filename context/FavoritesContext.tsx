@@ -33,8 +33,8 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const supabase = createClient();
     supabaseRef.current = supabase;
-    supabase.auth.getUser().then(({ data }) => {
-      userIdRef.current = data.user?.id ?? null;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      userIdRef.current = session?.user?.id ?? null;
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       userIdRef.current = session?.user?.id ?? null;

@@ -30,15 +30,7 @@ export function useCFScores() {
     const supabase = createClient();
     supabaseRef.current = supabase;
 
-    // 初期ユーザー取得
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) {
-        userIdRef.current = data.user.id;
-        fetchCFScores(data.user.id, supabase).then(setCFScores);
-      }
-    });
-
-    // ログイン・ログアウトに追従
+    // INITIAL_SESSION イベントで初期状態・ログイン・ログアウトすべてに追従
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         if (session?.user) {
