@@ -1,11 +1,12 @@
 'use client';
 
-import { useRef, useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, Heart, Zap, Building2 } from 'lucide-react';
 import { PLATFORMS } from '@/lib/platforms';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useAgency, type AgencyVliver, type AgencyVoice } from '@/hooks/useAgency';
+import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 
 const BRAND = '#EF5285';
 const BOOST = '#FEEE7D';
@@ -14,26 +15,11 @@ export default function AgencyContent({ slug }: { slug: string }) {
   const { agency, vlivers, loading, notFound } = useAgency(slug);
   const { likedIds, addFavorite, removeFavorite } = useFavorites();
 
-  const currentAudioRef           = useRef<HTMLAudioElement | null>(null);
-  const [playingId, setPlayingId] = useState<string | null>(null);
+  const { playingId, togglePlay } = useAudioPlayer();
 
   const handleTogglePlay = useCallback((voice: AgencyVoice) => {
-    if (playingId === voice.id) {
-      currentAudioRef.current?.pause();
-      setPlayingId(null);
-      return;
-    }
-    if (currentAudioRef.current) {
-      currentAudioRef.current.pause();
-      currentAudioRef.current.currentTime = 0;
-    }
-    const audio = new Audio(voice.voiceUrl);
-    audio.preload = 'none';
-    audio.addEventListener('ended', () => setPlayingId(null));
-    audio.play().catch(() => {});
-    currentAudioRef.current = audio;
-    setPlayingId(voice.id);
-  }, [playingId]);
+    togglePlay(voice.id, voice.voiceUrl);
+  }, [togglePlay]);
 
   const handleToggleFavorite = useCallback((voiceId: string) => {
     if (likedIds.has(voiceId)) {

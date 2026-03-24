@@ -1,10 +1,11 @@
 'use client';
 
-import { useRef, useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, Pencil, Trash2, Check, X, Mic, ArrowRight, Heart } from 'lucide-react';
 import { useMyPosts, type VoicePost } from '@/hooks/useMyPosts';
+import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 
 const BRAND = '#EF5285';
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -16,40 +17,16 @@ function voiceUrl(voice_path: string) {
 export default function MyPostsList() {
   const { posts, loading, deletePost, updateCatchCopy } = useMyPosts();
 
-  const currentAudioRef           = useRef<HTMLAudioElement | null>(null);
-  const [playingId, setPlayingId] = useState<string | null>(null);
+  const { playingId, togglePlay, stopId } = useAudioPlayer();
 
   const handleTogglePlay = useCallback(
-    (post: VoicePost) => {
-      if (playingId === post.id) {
-        currentAudioRef.current?.pause();
-        setPlayingId(null);
-        return;
-      }
-      if (currentAudioRef.current) {
-        currentAudioRef.current.pause();
-        currentAudioRef.current.currentTime = 0;
-      }
-      const audio = new Audio(voiceUrl(post.voice_path));
-      audio.preload = 'none';
-      audio.addEventListener('ended', () => setPlayingId(null));
-      audio.play().catch(() => {});
-      currentAudioRef.current = audio;
-      setPlayingId(post.id);
-    },
-    [playingId],
+    (post: VoicePost) => togglePlay(post.id, voiceUrl(post.voice_path)),
+    [togglePlay],
   );
 
   const handleDelete = useCallback(
-    (id: string) => {
-      if (playingId === id) {
-        currentAudioRef.current?.pause();
-        currentAudioRef.current = null;
-        setPlayingId(null);
-      }
-      deletePost(id);
-    },
-    [playingId, deletePost],
+    (id: string) => { stopId(id); deletePost(id); },
+    [stopId, deletePost],
   );
 
   if (loading) return null;

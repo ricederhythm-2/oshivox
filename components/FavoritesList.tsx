@@ -1,12 +1,13 @@
 'use client';
 
-import { useRef, useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, Zap, HeartCrack, Sparkles, ArrowRight } from 'lucide-react';
 import { PLATFORMS } from '@/lib/platforms';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useVlivers } from '@/hooks/useVlivers';
+import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import type { VLiver } from '@/components/SwipeCard';
 
 const BRAND = '#EF5285';
@@ -27,35 +28,16 @@ export default function FavoritesList() {
     return Array.from(seen.entries()).map(([profileId, voices]) => ({ profileId, voices }));
   }, [orderedIds, vliversMap]);
 
-  const currentAudioRef           = useRef<HTMLAudioElement | null>(null);
-  const [playingId, setPlayingId] = useState<string | null>(null);
+  const { playingId, togglePlay, stopId } = useAudioPlayer();
 
   const handleTogglePlay = useCallback((vliver: VLiver) => {
-    if (playingId === vliver.id) {
-      currentAudioRef.current?.pause();
-      setPlayingId(null);
-      return;
-    }
-    if (currentAudioRef.current) {
-      currentAudioRef.current.pause();
-      currentAudioRef.current.currentTime = 0;
-    }
-    const audio = new Audio(vliver.voiceUrl);
-    audio.preload = 'none';
-    audio.addEventListener('ended', () => setPlayingId(null));
-    audio.play().catch(() => {});
-    currentAudioRef.current = audio;
-    setPlayingId(vliver.id);
-  }, [playingId]);
+    togglePlay(vliver.id, vliver.voiceUrl);
+  }, [togglePlay]);
 
   const handleRemove = useCallback((id: string) => {
-    if (playingId === id) {
-      currentAudioRef.current?.pause();
-      currentAudioRef.current = null;
-      setPlayingId(null);
-    }
+    stopId(id);
     removeFavorite(id);
-  }, [playingId, removeFavorite]);
+  }, [stopId, removeFavorite]);
 
   if (!hydrated || vliversLoading) return <FavoritesListSkeleton />;
   if (groups.length === 0) return <EmptyState />;

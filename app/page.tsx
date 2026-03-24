@@ -49,7 +49,7 @@ export default function HomePage() {
       }
       return contentB - contentA;
     });
-  }, [seenIds, likedIds, weights, hasHistory, cfScores]);
+  }, [seenIds, likedIds, weights, hasHistory, cfScores, vlivers]);
 
   const current    = remaining[0];
   const next       = remaining[1];

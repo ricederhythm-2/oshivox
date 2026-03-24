@@ -39,6 +39,14 @@ export function useVlivers() {
           setLoading(false);
           return;
         }
+        interface VliverProfileRow {
+          id: string; name: string; handle: string;
+          image_path: string | null; color: string;
+          tags: string[]; description: string;
+          twitter_handle: string;
+          platform_links: Record<string, string> | null;
+        }
+
         const rows = (data ?? []).filter((row) => row.vliver_profiles);
         if (rows.length === 0) {
           setVlivers(VLIVERS);
@@ -48,26 +56,21 @@ export function useVlivers() {
         setVlivers(
           rows
             .map((row) => {
-              const p = row.vliver_profiles as unknown as {
-                id: string; name: string; handle: string;
-                image_path: string | null; color: string;
-                tags: string[]; description: string;
-                twitter_handle: string;
-              };
+              const p = row.vliver_profiles as unknown as VliverProfileRow;
               return {
-                id:          row.id,
-                profileId:   p.id,
-                name:        p.name,
-                handle:      p.handle ? `@${p.handle}` : '',
-                catchphrase: row.catch_copy,
-                description: p.description,
-                imageUrl:    storageUrl('vlivers-images', p.image_path),
-                voiceUrl:    storageUrl('vlivers-voices', row.voice_path),
+                id:            row.id,
+                profileId:     p.id,
+                name:          p.name,
+                handle:        p.handle ? `@${p.handle}` : '',
+                catchphrase:   row.catch_copy,
+                description:   p.description,
+                imageUrl:      storageUrl('vlivers-images', p.image_path),
+                voiceUrl:      storageUrl('vlivers-voices', row.voice_path),
                 tags:          p.tags ?? [],
                 color:         p.color,
                 is_boosted:    row.is_boosted,
                 twitterHandle: p.twitter_handle ?? '',
-                platformLinks: (p as any).platform_links ?? {},
+                platformLinks: p.platform_links ?? {},
               };
             }),
           );
