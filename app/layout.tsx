@@ -4,8 +4,10 @@ import "./globals.css";
 import PageTransition from "@/components/PageTransition";
 import PreventPullToRefresh from "@/components/PreventPullToRefresh";
 import AdSenseScript from "@/components/AdSenseScript";
+import PageViewLogger from "@/components/PageViewLogger";
 import { FavoritesProvider } from "@/context/FavoritesContext";
 import { ProfileProvider } from "@/context/ProfileContext";
+import { ActionLoggerProvider } from "@/context/ActionLoggerContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,12 +45,15 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AdSenseScript />
+        <ActionLoggerProvider>
         <ProfileProvider>
         <FavoritesProvider>
+          <PageViewLogger />
           <PreventPullToRefresh />
           <PageTransition>{children}</PageTransition>
         </FavoritesProvider>
         </ProfileProvider>
+        </ActionLoggerProvider>
       </body>
     </html>
   );

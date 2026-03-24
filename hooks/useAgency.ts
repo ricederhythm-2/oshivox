@@ -55,6 +55,7 @@ export function useAgency(slug: string) {
       .single()
       .then(async ({ data: agencyData, error }) => {
         if (error || !agencyData) {
+          console.error('useAgency: agency fetch error', error, 'slug:', slug);
           setNotFound(true);
           setLoading(false);
           return;

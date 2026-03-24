@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { logAction } from '@/lib/logAction';
 
 const STORAGE_KEY = 'oshivox-favorites';
 
@@ -60,6 +61,9 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     setIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
     const userId = userIdRef.current;
     const supabase = supabaseRef.current;
+    if (supabase) {
+      logAction(supabase, userId ?? null, 'favorite_add', { postId: id });
+    }
     if (userId && supabase) {
       supabase.from('favorites').upsert({ user_id: userId, post_id: id }).then(({ error }) => {
         if (error) console.error('favorites insert:', error);
@@ -71,6 +75,9 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     setIds((prev) => prev.filter((i) => i !== id));
     const userId = userIdRef.current;
     const supabase = supabaseRef.current;
+    if (supabase) {
+      logAction(supabase, userId ?? null, 'favorite_remove', { postId: id });
+    }
     if (userId && supabase) {
       supabase.from('favorites').delete().eq('user_id', userId).eq('post_id', id).then(({ error }) => {
         if (error) console.error('favorites delete:', error);

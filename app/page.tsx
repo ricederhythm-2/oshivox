@@ -2,14 +2,15 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useCallback, useRef, useState, useMemo } from 'react';
+import { useCallback, useRef, useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { Heart, RotateCcw, Sparkles, X } from 'lucide-react';
-import SwipeCard, { type SwipeCardHandle } from '@/components/SwipeCard';
+import SwipeCard, { type SwipeCardHandle, type VLiver } from '@/components/SwipeCard';
 import { useFavorites } from '@/hooks/useFavorites';
 import { usePreferences, scoreVLiver } from '@/hooks/usePreferences';
 import { useVlivers } from '@/hooks/useVlivers';
 import { useCFScores } from '@/hooks/useCFScores';
+import { useLog } from '@/context/ActionLoggerContext';
 import AppHeader from '@/components/AppHeader';
 
 const BRAND = '#EF5285';
@@ -21,8 +22,14 @@ export default function HomePage() {
   const { vlivers, loading }      = useVlivers();
   const { cfScores, saveAction }  = useCFScores();
 
-  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
-  const cardRef         = useRef<SwipeCardHandle>(null);
+  const currentAudioRef   = useRef<HTMLAudioElement | null>(null);
+  const currentVliverRef  = useRef<VLiver | null>(null);
+  const cardRef           = useRef<SwipeCardHandle>(null);
+  const log               = useLog();
+
+  useEffect(() => {
+    currentVliverRef.current = current ?? null;
+  });
 
   const remaining = useMemo(() => {
     const unseen = vlivers.filter((v) => !seenIds.has(v.id) && !likedIds.has(v.id));
@@ -63,7 +70,10 @@ export default function HomePage() {
       currentAudioRef.current.currentTime = 0;
     }
     currentAudioRef.current = audio;
-  }, []);
+    if (currentVliverRef.current) {
+      log('voice_play', { postId: currentVliverRef.current.id });
+    }
+  }, [log]);
 
   const handleSwipe = useCallback(
     (direction: 'left' | 'right') => {
@@ -74,9 +84,11 @@ export default function HomePage() {
         addFavorite(current.id);
         recordLike(current.tags);
         saveAction(current.id, 'like');
+        log('swipe_like', { postId: current.id });
       } else {
         recordPass(current.tags);
         saveAction(current.id, 'pass');
+        log('swipe_pass', { postId: current.id });
       }
 
       setSeenIds((prev) => new Set([...prev, current.id]));
@@ -202,7 +214,6 @@ export default function HomePage() {
   );
 }
 
-import type { VLiver } from '@/components/SwipeCard';
 import type { TagWeights } from '@/hooks/usePreferences';
 import type { CFScoreMap } from '@/hooks/useCFScores';
 
