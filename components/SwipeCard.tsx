@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
   useCallback,
+  useEffect,
 } from 'react';
 import {
   motion,
@@ -47,12 +48,13 @@ interface Props {
   onSwipe: (direction: 'left' | 'right') => void;
   onAudioPlay?: (audio: HTMLAudioElement) => void;
   recommendBadge?: React.ReactNode;
+  autoPlay?: boolean;
 }
 
 const SWIPE_THRESHOLD = 100;
 
 const SwipeCard = forwardRef<SwipeCardHandle, Props>(
-  ({ vliver, onSwipe, onAudioPlay, recommendBadge }, ref) => {
+  ({ vliver, onSwipe, onAudioPlay, recommendBadge, autoPlay }, ref) => {
     const [isPlaying, setIsPlaying]   = useState(false);
     const [reportOpen, setReportOpen] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -71,6 +73,19 @@ const SwipeCard = forwardRef<SwipeCardHandle, Props>(
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
       setIsPlaying(false);
+    }, []);
+
+    // 前のカードでユーザーが再生済みなら自動再生
+    useEffect(() => {
+      if (!autoPlay || !audioRef.current || !vliver.voiceUrl) return;
+      const audio = audioRef.current;
+      audio.play()
+        .then(() => {
+          setIsPlaying(true);
+          onAudioPlay?.(audio);
+        })
+        .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const triggerSwipe = useCallback(
@@ -127,7 +142,7 @@ const SwipeCard = forwardRef<SwipeCardHandle, Props>(
         <audio
           ref={audioRef}
           src={vliver.voiceUrl || undefined}
-          preload="none"
+          preload={autoPlay ? 'auto' : 'none'}
           onEnded={() => setIsPlaying(false)}
         />
 

@@ -26,6 +26,7 @@ export default function SwipeFeed({ priorityPostId }: { priorityPostId?: string 
   const currentVliverRef  = useRef<VLiver | null>(null);
   const cardRef           = useRef<SwipeCardHandle>(null);
   const log               = useLog();
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
 
   useEffect(() => {
     currentVliverRef.current = current ?? null;
@@ -81,6 +82,7 @@ export default function SwipeFeed({ priorityPostId }: { priorityPostId?: string 
       currentAudioRef.current.currentTime = 0;
     }
     currentAudioRef.current = audio;
+    setAudioUnlocked(true);
     if (currentVliverRef.current) {
       log('voice_play', { postId: currentVliverRef.current.id });
     }
@@ -148,6 +150,7 @@ export default function SwipeFeed({ priorityPostId }: { priorityPostId?: string 
                   vliver={current}
                   onSwipe={handleSwipe}
                   onAudioPlay={handleAudioPlay}
+                  autoPlay={audioUnlocked}
                   recommendBadge={
                     (hasHistory || cfScores.size > 0)
                       ? <RecommendBadge vliver={current} weights={weights} cfScores={cfScores} />
