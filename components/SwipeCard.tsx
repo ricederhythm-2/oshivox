@@ -17,6 +17,7 @@ import {
 } from 'framer-motion';
 import { Play, Pause, Zap, Flag, Share2 } from 'lucide-react';
 import ReportModal from '@/components/ReportModal';
+import { shareVoice } from '@/lib/share';
 
 const BRAND  = '#EF5285';
 const BOOST  = '#FEEE7D';
@@ -62,13 +63,7 @@ const SwipeCard = forwardRef<SwipeCardHandle, Props>(
     const passOpacity = useTransform(x, [-130, -40], [1, 0]);
 
     const handleShare = useCallback(() => {
-      const url  = `${window.location.origin}/v/${vliver.id}`;
-      const text = `「${vliver.catchphrase}」\n${vliver.name}\n\n#OshiVox`;
-      window.open(
-        `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
-        '_blank',
-        'noopener,noreferrer',
-      );
+      shareVoice(vliver.id, vliver.name, vliver.catchphrase);
     }, [vliver]);
 
     const stopAudio = useCallback(() => {

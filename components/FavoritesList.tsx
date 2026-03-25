@@ -4,6 +4,7 @@ import { useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, Zap, HeartCrack, Sparkles, ArrowRight, Share2 } from 'lucide-react';
+import { shareVoice } from '@/lib/share';
 import { PLATFORMS } from '@/lib/platforms';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useVlivers } from '@/hooks/useVlivers';
@@ -40,13 +41,7 @@ export default function FavoritesList() {
   }, [stopId, removeFavorite]);
 
   const handleShare = useCallback((v: VLiver) => {
-    const url  = `${window.location.origin}/v/${v.id}`;
-    const text = `「${v.catchphrase}」\n${v.name}\n\n#OshiVox`;
-    window.open(
-      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
-      '_blank',
-      'noopener,noreferrer',
-    );
+    shareVoice(v.id, v.name, v.catchphrase);
   }, []);
 
   if (!hydrated || vliversLoading) return <FavoritesListSkeleton />;
