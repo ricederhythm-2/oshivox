@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, Zap, HeartCrack, Sparkles, ArrowRight } from 'lucide-react';
+import { Play, Pause, Zap, HeartCrack, Sparkles, ArrowRight, Share2 } from 'lucide-react';
 import { PLATFORMS } from '@/lib/platforms';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useVlivers } from '@/hooks/useVlivers';
@@ -39,6 +39,16 @@ export default function FavoritesList() {
     removeFavorite(id);
   }, [stopId, removeFavorite]);
 
+  const handleShare = useCallback((v: VLiver) => {
+    const url  = `${window.location.origin}/v/${v.id}`;
+    const text = `「${v.catchphrase}」\n${v.name}\n\n#OshiVox`;
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+      '_blank',
+      'noopener,noreferrer',
+    );
+  }, []);
+
   if (!hydrated || vliversLoading) return <FavoritesListSkeleton />;
   if (groups.length === 0) return <EmptyState />;
 
@@ -57,6 +67,7 @@ export default function FavoritesList() {
             voices={voices}
             playingId={playingId}
             onTogglePlay={handleTogglePlay}
+            onShare={handleShare}
             onRemove={handleRemove}
           />
         ))}
@@ -66,11 +77,12 @@ export default function FavoritesList() {
 }
 
 function VliverGroupCard({
-  voices, playingId, onTogglePlay, onRemove,
+  voices, playingId, onTogglePlay, onShare, onRemove,
 }: {
   voices: VLiver[];
   playingId: string | null;
   onTogglePlay: (v: VLiver) => void;
+  onShare: (v: VLiver) => void;
   onRemove: (id: string) => void;
 }) {
   const profile = voices[0];
@@ -221,6 +233,15 @@ function VliverGroupCard({
                           試聴
                         </>
                       )}
+                    </button>
+                    <button
+                      onClick={() => onShare(v)}
+                      className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold flex-shrink-0 transition-all active:scale-95 hover:scale-105"
+                      style={{ background: '#000000', color: '#FFFFFF' }}
+                      aria-label="Xでシェア"
+                    >
+                      <Share2 className="w-2.5 h-2.5" />
+                      シェア
                     </button>
                     <button
                       onClick={() => onRemove(v.id)}

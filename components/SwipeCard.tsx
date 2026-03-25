@@ -15,7 +15,7 @@ import {
   animate,
   type PanInfo,
 } from 'framer-motion';
-import { Play, Pause, Zap, Flag } from 'lucide-react';
+import { Play, Pause, Zap, Flag, Share2 } from 'lucide-react';
 import ReportModal from '@/components/ReportModal';
 
 const BRAND  = '#EF5285';
@@ -60,6 +60,16 @@ const SwipeCard = forwardRef<SwipeCardHandle, Props>(
     const rotate      = useTransform(x, [-220, 220], [-18, 18]);
     const likeOpacity = useTransform(x, [40, 130], [0, 1]);
     const passOpacity = useTransform(x, [-130, -40], [1, 0]);
+
+    const handleShare = useCallback(() => {
+      const url  = `${window.location.origin}/v/${vliver.id}`;
+      const text = `「${vliver.catchphrase}」\n${vliver.name}\n\n#OshiVox`;
+      window.open(
+        `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+        '_blank',
+        'noopener,noreferrer',
+      );
+    }, [vliver]);
 
     const stopAudio = useCallback(() => {
       if (!audioRef.current) return;
@@ -249,21 +259,31 @@ const SwipeCard = forwardRef<SwipeCardHandle, Props>(
                 </p>
               )}
 
-              {/* タグ */}
-              <div className="flex flex-wrap gap-1 mt-2">
-                {vliver.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-[11px] px-2 py-0.5 rounded-full font-semibold"
-                    style={{
-                      background: `${BRAND}12`,
-                      color: BRAND,
-                      border: `1px solid ${BRAND}25`,
-                    }}
-                  >
-                    #{tag}
-                  </span>
-                ))}
+              {/* タグ + シェアボタン */}
+              <div className="flex items-center gap-1 mt-2">
+                <div className="flex flex-wrap gap-1 flex-1">
+                  {vliver.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-[11px] px-2 py-0.5 rounded-full font-semibold"
+                      style={{
+                        background: `${BRAND}12`,
+                        color: BRAND,
+                        border: `1px solid ${BRAND}25`,
+                      }}
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleShare(); }}
+                  className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all hover:scale-110 active:scale-95"
+                  style={{ background: '#000000' }}
+                  aria-label="Xでシェア"
+                >
+                  <Share2 className="w-3.5 h-3.5 text-white" />
+                </button>
               </div>
             </div>
           </div>
