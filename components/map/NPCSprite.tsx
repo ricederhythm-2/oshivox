@@ -13,61 +13,73 @@ interface Props {
   isSeen: boolean;
 }
 
+/**
+ * Human-shaped RPG character.
+ * The VLiver's image is shown as a circular "head" at the top,
+ * below which is a stylized body + arms + legs built from CSS divs.
+ * World coordinate (x, y) is anchored at the character's feet.
+ */
 export default function NPCSprite({ npc, isNear, isActive, isSeen }: Props) {
   const { vliver, x, y } = npc;
+  const bodyColor = vliver.color || '#5a3a7a';
 
   return (
-    // Outer div handles absolute world positioning + centering
+    // Anchor at feet (translate -50% X, -100% Y)
     <div
       style={{
         position: 'absolute',
         left: x,
         top: y,
-        transform: 'translate(-50%, -50%)',
+        transform: 'translate(-50%, -100%)',
         zIndex: 5,
-        opacity: isSeen ? 0.3 : 1,
+        opacity: isSeen ? 0.25 : 1,
         pointerEvents: isSeen ? 'none' : 'auto',
       }}
     >
-      {/* Inner motion.div provides floating animation */}
       <motion.div
-        className="flex flex-col items-center"
-        animate={{ y: [0, -6, 0] }}
-        transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+        animate={{ y: [0, -4, 0] }}
+        transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
       >
-        {/* Relative container for speech bubble absolute positioning */}
-        <div className="relative flex flex-col items-center">
+        {/* ── HEAD + speech bubble ── */}
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+
+          {/* Speech bubble anchored above this container */}
           <SpeechBubble text={vliver.catchphrase} visible={isNear && !isSeen} />
 
-          {/* Glowing ring for active NPC */}
+          {/* Active pulse ring */}
           {isActive && !isSeen && (
             <div
-              className="absolute rounded-full pointer-events-none"
               style={{
-                width: 76,
-                height: 92,
-                top: -6,
+                position: 'absolute',
+                width: 62,
+                height: 62,
+                top: '50%',
                 left: '50%',
-                transform: 'translateX(-50%)',
+                transform: 'translate(-50%, -50%)',
+                borderRadius: '50%',
                 border: `2px solid ${BRAND}`,
-                boxShadow: `0 0 14px ${BRAND}80, 0 0 28px ${BRAND}40`,
+                boxShadow: `0 0 12px ${BRAND}90, 0 0 24px ${BRAND}40`,
+                pointerEvents: 'none',
+                animation: 'pulse-ring 1.6s ease-out infinite',
               }}
             />
           )}
 
-          {/* Character image */}
+          {/* Circular avatar — the "head" */}
           <div
             style={{
-              width: 64,
-              height: 80,
-              borderRadius: 8,
+              width: 48,
+              height: 48,
+              borderRadius: '50%',
               overflow: 'hidden',
               border: isActive && !isSeen
-                ? `2px solid ${BRAND}`
-                : '2px solid rgba(255,255,255,0.18)',
-              boxShadow: isActive
-                ? `0 0 18px ${BRAND}60`
-                : '0 2px 10px rgba(0,0,0,0.6)',
+                ? `3px solid ${BRAND}`
+                : `2px solid ${bodyColor}`,
+              boxShadow: isActive && !isSeen
+                ? `0 0 16px ${BRAND}70, 0 3px 10px rgba(0,0,0,0.7)`
+                : `0 3px 10px rgba(0,0,0,0.7)`,
+              background: bodyColor,
               flexShrink: 0,
             }}
           >
@@ -79,8 +91,16 @@ export default function NPCSprite({ npc, isNear, isActive, isSeen }: Props) {
               />
             ) : (
               <div
-                className="w-full h-full flex items-center justify-center text-2xl font-bold"
-                style={{ background: vliver.color || '#333', color: '#fff' }}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 20,
+                  fontWeight: 700,
+                  color: '#fff',
+                }}
               >
                 {vliver.name.charAt(0)}
               </div>
@@ -88,15 +108,87 @@ export default function NPCSprite({ npc, isNear, isActive, isSeen }: Props) {
           </div>
         </div>
 
-        {/* Name label — shown when near or active */}
+        {/* ── NECK ── */}
+        <div
+          style={{
+            width: 10,
+            height: 7,
+            background: bodyColor,
+            marginTop: -2,
+            borderRadius: '0 0 3px 3px',
+          }}
+        />
+
+        {/* ── TORSO + ARMS ── */}
+        <div
+          style={{
+            position: 'relative',
+            width: 36,
+            height: 30,
+            background: bodyColor,
+            borderRadius: '5px 5px 3px 3px',
+            marginTop: -1,
+          }}
+        >
+          {/* Left arm */}
+          <div
+            style={{
+              position: 'absolute',
+              left: -10,
+              top: 4,
+              width: 10,
+              height: 22,
+              background: bodyColor,
+              borderRadius: '4px 0 6px 6px',
+            }}
+          />
+          {/* Right arm */}
+          <div
+            style={{
+              position: 'absolute',
+              right: -10,
+              top: 4,
+              width: 10,
+              height: 22,
+              background: bodyColor,
+              borderRadius: '0 4px 6px 6px',
+            }}
+          />
+        </div>
+
+        {/* ── LEGS ── */}
+        <div style={{ display: 'flex', gap: 3, marginTop: 1 }}>
+          <div
+            style={{
+              width: 15,
+              height: 20,
+              background: '#1a1a3a',
+              borderRadius: '2px 2px 5px 5px',
+            }}
+          />
+          <div
+            style={{
+              width: 15,
+              height: 20,
+              background: '#1a1a3a',
+              borderRadius: '2px 2px 5px 5px',
+            }}
+          />
+        </div>
+
+        {/* ── NAME LABEL ── */}
         {(isNear || isActive) && !isSeen && (
           <span
-            className="mt-1 font-bold leading-none px-1.5 py-0.5 rounded"
             style={{
+              marginTop: 4,
               fontSize: 9,
+              fontWeight: 700,
               color: '#fff',
               background: 'rgba(0,0,0,0.65)',
+              padding: '2px 6px',
+              borderRadius: 4,
               whiteSpace: 'nowrap',
+              lineHeight: 1,
             }}
           >
             {vliver.name}

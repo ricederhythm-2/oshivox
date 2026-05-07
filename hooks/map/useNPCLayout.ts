@@ -5,7 +5,7 @@ import type { VLiver } from '@/components/SwipeCard';
 import type { MapNPC } from '@/types/map';
 import { WORLD_W, WORLD_H, TILE } from '@/types/map';
 
-const MARGIN = 120; // px from world edges
+const MARGIN = 80; // px from world edges
 
 /** Mulberry32 pseudo-random number generator (deterministic) */
 function mulberry32(seed: number): () => number {

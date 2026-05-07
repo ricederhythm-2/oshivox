@@ -1,9 +1,9 @@
 import type { VLiver } from '@/components/SwipeCard';
 
-export const WORLD_W         = 3000;
-export const WORLD_H         = 2000;
+export const WORLD_W         = 1800;
+export const WORLD_H         = 1200;
 export const TILE            = 32;
-export const PLAYER_SPEED    = 3;
+export const PLAYER_SPEED    = 5;
 export const SPEECH_RADIUS   = 150;
 export const INTERACT_RADIUS = 80;
 

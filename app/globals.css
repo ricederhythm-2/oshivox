@@ -45,3 +45,10 @@ button, a {
   user-select: none;
   -webkit-user-select: none;
 }
+
+/* RPG Map — active NPC ring pulse */
+@keyframes pulse-ring {
+  0%   { opacity: 1;   transform: translate(-50%, -50%) scale(1);    }
+  70%  { opacity: 0;   transform: translate(-50%, -50%) scale(1.35); }
+  100% { opacity: 0;   transform: translate(-50%, -50%) scale(1.35); }
+}
