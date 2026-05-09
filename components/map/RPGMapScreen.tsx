@@ -5,6 +5,7 @@ import AppHeader from '@/components/AppHeader';
 import { useVlivers } from '@/hooks/useVlivers';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { useNPCLayout } from '@/hooks/map/useNPCLayout';
+import { useCollision } from '@/hooks/map/useCollision';
 import { usePlayerMovement } from '@/hooks/map/usePlayerMovement';
 import { useMapCamera } from '@/hooks/map/useMapCamera';
 import { useProximity } from '@/hooks/map/useProximity';
@@ -18,7 +19,8 @@ import DPad from './DPad';
 export default function RPGMapScreen() {
   const { vlivers }                               = useVlivers();
   const npcs                                      = useNPCLayout(vlivers);
-  const { playerPos, pressDPad, releaseDPad }     = usePlayerMovement();
+  const { resolveMovement }                       = useCollision();
+  const { playerPos, pressDPad, releaseDPad }     = usePlayerMovement(resolveMovement);
   const cameraOffset                              = useMapCamera(playerPos);
   const [seenIds, setSeenIds]                     = useState<Set<string>>(new Set());
   const { playingId, togglePlay }                 = useAudioPlayer();
@@ -35,7 +37,7 @@ export default function RPGMapScreen() {
   return (
     <div
       className="h-dvh overflow-hidden relative"
-      style={{ background: '#0a0a1a' }}
+      style={{ background: '#2a3a2a' }}
     >
       {/* Header sits on top of the map (z-40) */}
       <AppHeader />
